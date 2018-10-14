@@ -1,4 +1,5 @@
-# RateLimiter [![Build Status](https://travis-ci.org/taylorza/go-ratelimiter.svg?branch=master)](https://travis-ci.org/taylorza/go-ratelimiter)
+# RateLimiter [![Build Status](https://travis-ci.org/taylorza/go-ratelimiter.svg?branch=master)](https://travis-ci.org/taylorza/go-ratelimiter) [![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/taylorza/go-ratelimiter)
+
 
 # go-ratelimiter
 RateLimiter can be used to limit the rate at which work is done, for example to control the TPS in a load testing client
