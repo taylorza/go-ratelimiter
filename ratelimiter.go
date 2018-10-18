@@ -1,7 +1,6 @@
 package ratelimiter
 
 import (
-	"runtime"
 	"sync"
 	"time"
 )
@@ -10,41 +9,66 @@ const defaultRefreshPeriod = 10
 
 // Limiter used to limit the rate at which work is done
 type Limiter struct {
-	tpp    float64
-	tokens float64
-	m      sync.Mutex
-	c      *sync.Cond
-	t      *time.Ticker
-	done   chan bool
+	tpp     float64
+	tokens  float64
+	m       sync.Mutex
+	c       *sync.Cond
+	t       *time.Ticker
+	done    chan bool
+	started bool
 }
 
-// New creates a rate limiter that can be used to throttle work to target rate per second
+// New creates a rate limiter that can be used to throttle work to target rate per second. The returned ratelimiter is started and ready to throttle.
 func New(rate uint) *Limiter {
 	if rate == 0 {
 		panic("rate must be greater than 0")
 	}
-	l := new(Limiter)
-
+	l := &Limiter{}
 	l.done = make(chan bool)
-	l.tpp = float64(rate) / 1000 * defaultRefreshPeriod
-	l.tokens = l.tpp
 	l.c = sync.NewCond(&l.m)
 	l.t = time.NewTicker(defaultRefreshPeriod * time.Millisecond)
-
-	go l.tokenReplenisher()
-
-	runtime.SetFinalizer(l, finalizer)
-
+	l.SetRate(rate)
+	l.Start()
 	return l
 }
 
-// Throttle blocks if the current rate of work exceeds the limiter
+// Start a stopped ratelimiter if the rate limiter is already started the operation does nothing.
+func (l *Limiter) Start() {
+	l.m.Lock()
+	defer l.m.Unlock()
+	if !l.started {
+		l.tokens = l.tpp
+		l.started = true
+		go l.tokenReplenisher()
+	}
+}
+
+// Stop the rate limiter and releases the internal resources.
+func (l *Limiter) Stop() {
+	l.m.Lock()
+	defer l.m.Unlock()
+	if l.started {
+		l.done <- true
+		l.t.Stop()
+	}
+}
+
+// SetRate updates the rate of the ratelimiter on the fly.
+func (l *Limiter) SetRate(rate uint) {
+	l.m.Lock()
+	defer l.m.Unlock()
+	l.tpp = float64(rate) / 1000 * defaultRefreshPeriod
+}
+
+// Throttle blocks if the current rate of work exceeds the limiter.
 func (l *Limiter) Throttle() {
 	l.m.Lock()
-	for l.tokens <= 0 {
-		l.c.Wait()
+	if l.started {
+		for l.tokens <= 0 {
+			l.c.Wait()
+		}
+		l.tokens--
 	}
-	l.tokens--
 	l.m.Unlock()
 }
 
@@ -66,9 +90,4 @@ func (l *Limiter) tokenReplenisher() {
 			}
 		}
 	}
-}
-
-func finalizer(l *Limiter) {
-	l.done <- true
-	l.t.Stop()
 }
