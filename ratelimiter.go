@@ -50,6 +50,7 @@ func (l *Limiter) Stop() {
 	if l.started {
 		l.done <- true
 		l.t.Stop()
+		l.started = false
 	}
 }
 
