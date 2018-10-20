@@ -1,4 +1,4 @@
-# RateLimiter [![Build Status](https://travis-ci.org/taylorza/go-ratelimiter.svg?branch=master)](https://travis-ci.org/taylorza/go-ratelimiter) [![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/taylorza/go-ratelimiter)
+# RateLimiter [![Build Status](https://travis-ci.org/taylorza/go-ratelimiter.svg?branch=master)](https://travis-ci.org/taylorza/go-ratelimiter) [![Go Report Card](https://goreportcard.com/badge/github.com/taylorza/go-ratelimiter)](https://goreportcard.com/report/github.com/taylorza/go-ratelimiter) [![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/taylorza/go-ratelimiter)
 
 
 # go-ratelimiter
